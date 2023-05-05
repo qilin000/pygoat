@@ -6,6 +6,7 @@ from requests.structures import CaseInsensitiveDict
 import requests
 from django.contrib.auth import login,authenticate
 from django.contrib.auth.forms import UserCreationForm
+from django.utils.html import escape
 
 #*****************************************Lab Requirements****************************************************#
 
@@ -83,7 +84,9 @@ def sql_lab(request):
 
 
 
-                val=login.objects.raw("SELECT * FROM introduction_login WHERE user='"+name+"'AND password='"+password+"'")
+                val=login.objects.raw("SELECT * FROM introduction_login WHERE user=%(name)s AND password=%(password)s", 
+                                      {"name": name, "password": password}
+                                      )
 
                 if val:
                     user=val[0].user;
@@ -360,7 +363,8 @@ def Otp(request):
         otpR=request.POST.get("otp")
         email=request.COOKIES.get("email")
         if otp.objects.filter(email=email,otp=otpR) or otp.objects.filter(id=2,otp=otpR):
-            return HttpResponse("<h3>Login Success for email:::"+email+"</h3>")
+            loginSuccessMsg = "<h3>Login Success for email:::"+email+"</h3>";
+            return HttpResponse(escape(loginSuccessMsg))
         else:
             return render(request,"Lab/BrokenAuth/otp.html",{"otp":"Invalid OTP Please Try Again"})
 
